@@ -22,6 +22,7 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        WebView.setWebContentsDebuggingEnabled(false);
         webView = new WebView(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
