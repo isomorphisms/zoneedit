@@ -11,6 +11,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 public final class MainActivity extends Activity {
     private static final String START_URL = "https://cp.zoneedit.com/login.php";
@@ -69,10 +71,19 @@ public final class MainActivity extends Activity {
             }
         });
 
-        if (savedInstanceState == null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                    new OnBackInvokedCallback() {
+                        @Override
+                        public void onBackInvoked() {
+                            handleBack();
+                        }
+                    });
+        }
+
+        if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
             webView.loadUrl(START_URL);
-        } else {
-            webView.restoreState(savedInstanceState);
         }
     }
 
@@ -84,7 +95,8 @@ public final class MainActivity extends Activity {
         String host = uri.getHost();
         return isHttps(uri)
                 && host != null
-                && (host.equals("zoneedit.com") || host.endsWith(".zoneedit.com"));
+                && (host.equalsIgnoreCase("zoneedit.com")
+                        || host.toLowerCase(java.util.Locale.ROOT).endsWith(".zoneedit.com"));
     }
 
     private static void injectMobileCss(WebView view) {
@@ -108,12 +120,16 @@ public final class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onBackPressed() {
+    private void handleBack() {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
-            super.onBackPressed();
+            finish();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        handleBack();
     }
 }
