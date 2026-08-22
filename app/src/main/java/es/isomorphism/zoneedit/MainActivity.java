@@ -33,6 +33,7 @@ public final class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setBuiltInZoomControls(true);
         settings.setDisplayZoomControls(false);
         settings.setTextZoom(110);
@@ -47,8 +48,13 @@ public final class MainActivity extends Activity {
                 if (isZoneEdit(uri)) {
                     return false;
                 }
-                Intent browser = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(browser);
+                if (!request.isForMainFrame()) {
+                    return false;
+                }
+                if (isHttps(uri)) {
+                    Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(browser);
+                }
                 return true;
             }
 
@@ -69,9 +75,13 @@ public final class MainActivity extends Activity {
         }
     }
 
+    private static boolean isHttps(Uri uri) {
+        return "https".equalsIgnoreCase(uri.getScheme());
+    }
+
     private static boolean isZoneEdit(Uri uri) {
         String host = uri.getHost();
-        return "https".equalsIgnoreCase(uri.getScheme())
+        return isHttps(uri)
                 && host != null
                 && (host.equals("zoneedit.com") || host.endsWith(".zoneedit.com"));
     }
