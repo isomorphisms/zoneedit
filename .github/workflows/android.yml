@@ -19,8 +19,9 @@ jobs:
         with:
           gradle-version: '8.9'
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-      - run: gradle :app:assembleDebug --no-daemon
+      - run: gradle :app:lintDebug :app:assembleDebug --no-daemon
+      - run: cp app/build/outputs/apk/debug/app-debug.apk zoneedit-mobile.apk
       - uses: actions/upload-artifact@v4
         with:
           name: zoneedit-mobile-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: zoneedit-mobile.apk
