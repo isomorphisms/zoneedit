@@ -45,16 +45,17 @@ public final class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                if (!isHttps(uri)) {
+                    return true;
+                }
                 if (isZoneEdit(uri)) {
                     return false;
                 }
                 if (!request.isForMainFrame()) {
                     return false;
                 }
-                if (isHttps(uri)) {
-                    Intent browser = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(browser);
-                }
+                Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(browser);
                 return true;
             }
 
